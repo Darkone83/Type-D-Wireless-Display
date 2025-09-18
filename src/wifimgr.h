@@ -1,10 +1,9 @@
 #pragma once
-
 #include <Arduino.h>
 
 namespace WiFiMgr {
 
-    //AsyncWebServer& getServer();
+    // AsyncWebServer& getServer(); // keep commented if you don't expose it
 
     void begin();
     void loop();
@@ -12,4 +11,11 @@ namespace WiFiMgr {
     void forgetWiFi();
     bool isConnected();
     String getStatus();
+
+    // NEW: persisted display selection
+    // Returns "ssd1309" (default) or "us2066"
+    String getDisplay();
+
+    // Convenience: true when the US2066 20x4 display is selected
+    bool   isUS2066Selected();
 }
