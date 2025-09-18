@@ -13,6 +13,7 @@ Designed for the Waveshare 2.42″ SSD1309 I²C panel (128×64).
   - **SECOND** – Tray state, AV type, encoder chip, guessed Xbox version, serial, MAC, region.
   - **HEALTH** – Wi‑Fi RSSI (with quality label), free heap, IP address.
   - **WEATHER** *(optional)* – Location header, big temp, condition text, humidity & wind.
+  - **INSIGNIA** - Will display insignia leaderboard info when a compatible game is selected.
 - **Inactivity policy (no “STALE”)**
   - Before any UDP data: full-screen boot logo only.
   - No UDP for **2 min**: show boot logo.
@@ -28,8 +29,8 @@ Designed for the Waveshare 2.42″ SSD1309 I²C panel (128×64).
 
 ## 🧰 Required Hardware
 
-- **ESP32‑S3** dev board (the default pins in the code target S3; classic ESP32 uses flash on GPIO 6–11, see pin notes below).
-- **Waveshare 2.42″ OLED**, SSD1309, I²C (address **0x3D**).
+- **ESP32‑S3** Waveshare ESP32-S3 Zero or compatable.
+- **Waveshare 2.42″ OLED**.
 - *(Optional)* **LC709203F** fuel gauge (Adafruit breakout works great).
 - *(Optional)* LiPo pack if you want the battery widget to show %/voltage.
 
