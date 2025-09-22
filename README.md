@@ -30,16 +30,16 @@ Designed for the Waveshare 2.42″ SSD1309 I²C panel (128×64), with added supp
 ## 🧰 Required Hardware
 
 ### Desktop build
-- **ESP32‑S3** Waveshare ESP32-S3 Zero or compatable.
+- **ESP32‑S3**: Waveshare ESP32-S3 Zero or compatable.
 - **Waveshare 2.42″ OLED**.
 - *(Optional)* **LC709203F** fuel gauge (Adafruit breakout works great).
 - *(Optional)* LiPo pack if you want the battery widget to show %/voltage.
 
 ### Controller port build
-- **ESP32‑S3** Waveshare ESP32-S3 Zero or compatable.
+- **ESP32‑S3**: Waveshare ESP32-S3 Zero or compatable.
 - **Waveshare 2.42″ OLED**.
-- ** 2 Caps** 1x 100uF, 1X 10uF
-- **Sacrificial OG XBOX dongle** Needed to actually interface with the xbox controller port for power.
+- **2 Caps**: 1x 100uF, 1X 10uF
+- **Sacrificial OG XBOX dongle**: Needed to actually interface with the xbox controller port for power.
 
 
 
