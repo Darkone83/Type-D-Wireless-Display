@@ -3,6 +3,7 @@
 A tiny OLED “status screen” for original Xbox setups (and other sources), driven over Wi‑Fi/UDP.  
 Shows a main system summary, a dense second page, a health page, and an optional weather page, and insignia leaderboard page.
 Designed for the Waveshare 2.42″ SSD1309 I²C panel (128×64), with added support expermental for US2066 OLED displays.
+A Type D Expansion unit is required for these displays to properly work and display data.
 
 ---
 
