@@ -1,8 +1,8 @@
-# Type-D Wireless Display (ESP32 + SSD1309)
+# Type-D Wireless Display
 
 A tiny OLED “status screen” for original Xbox setups (and other sources), driven over Wi‑Fi/UDP.  
-Shows a main system summary, a dense second page, a health page, and an optional weather page.  
-Designed for the Waveshare 2.42″ SSD1309 I²C panel (128×64).
+Shows a main system summary, a dense second page, a health page, and an optional weather page, and insignia leaderboard page.
+Designed for the Waveshare 2.42″ SSD1309 I²C panel (128×64), with added support expermental for US2066 OLED displays.
 
 ---
 
@@ -29,10 +29,19 @@ Designed for the Waveshare 2.42″ SSD1309 I²C panel (128×64).
 
 ## 🧰 Required Hardware
 
+### Desktop build
 - **ESP32‑S3** Waveshare ESP32-S3 Zero or compatable.
 - **Waveshare 2.42″ OLED**.
 - *(Optional)* **LC709203F** fuel gauge (Adafruit breakout works great).
 - *(Optional)* LiPo pack if you want the battery widget to show %/voltage.
+
+### Controller port build
+- **ESP32‑S3** Waveshare ESP32-S3 Zero or compatable.
+- **Waveshare 2.42″ OLED**.
+- ** 2 Caps** 1x 100uF, 1X 10uF
+- **Sacrificial OG XBOX dongle** Needed to actually interface with the xbox controller port for power.
+
+
 
 ### Wiring (I²C bus shared by OLED + LC709203F)
 
@@ -40,6 +49,7 @@ Designed for the Waveshare 2.42″ SSD1309 I²C panel (128×64).
 |-------:|:-------------|:-----|:----------|
 | SDA    | **GPIO 6**   | SDA  | SDA       |
 | SCL    | **GPIO 7**   | SCL  | SCL       |
+| RST    | **GPIO 9**   | RST  |           |
 | 3V3    | 3V3          | VCC  | VIN       |
 | GND    | GND          | GND  | GND       |
 
