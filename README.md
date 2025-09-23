@@ -56,7 +56,7 @@ A Type D Expansion unit is required for these displays to properly work and disp
 
 ## Purchase options:
 
-Controller port kit: Darkone Customs (coming soon!)
+Controller port kit: <a href="https://www.darkonecustoms.com/store/p/type-d-wireless-oled-kit">Darkone Customs</a>
 
 ---
 
