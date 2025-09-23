@@ -131,6 +131,8 @@ Note: Images shown are from development builds
 
 ## 🚀 First Boot
 
+<img src="https://github.com/Darkone83/Type-D-Wireless-Display/blob/main/images/Setup.png" height=400>
+
 1. Power the device. It boots into **AP+STA** and opens the portal:
    - SSID: **Type D Wireless Display Setup**
 2. Visit any page (captive portal) or go to `http://192.168.4.1/`.
