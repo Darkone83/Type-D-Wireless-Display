@@ -2,7 +2,10 @@
 
 <div align=center>
   <img src="https://github.com/Darkone83/Type-D-Wireless-Display/blob/main/images/DC%20logo.png">
+  <p></p>
+  <img src="https://github.com/Darkone83/Type-D-Wireless-Display/blob/main/images/Disp.jpg" height=400>
 </div>
+<p></p>
 
 A tiny OLED “status screen” for original Xbox setups (and other sources), driven over Wi‑Fi/UDP.  
 Shows a main system summary, a dense second page, a health page, and an optional weather page, and insignia leaderboard page.
