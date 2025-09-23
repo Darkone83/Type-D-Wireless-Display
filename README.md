@@ -1,5 +1,9 @@
 # Type-D Wireless Display
 
+<div align=center>
+  <img src="https://github.com/Darkone83/Type-D-Wireless-Display/blob/main/images/DC%20logo.png">
+</div>
+
 A tiny OLED “status screen” for original Xbox setups (and other sources), driven over Wi‑Fi/UDP.  
 Shows a main system summary, a dense second page, a health page, and an optional weather page, and insignia leaderboard page.
 Designed for the Waveshare 2.42″ SSD1309 I²C panel (128×64), with added support expermental for US2066 OLED displays.
@@ -31,17 +35,27 @@ A Type D Expansion unit is required for these displays to properly work and disp
 ## 🧰 Required Hardware
 
 ### Desktop build
-- **ESP32‑S3**: Waveshare ESP32-S3 Zero or compatable.
-- **Waveshare 2.42″ OLED**.
-- *(Optional)* **LC709203F** fuel gauge (Adafruit breakout works great).
-- *(Optional)* LiPo pack if you want the battery widget to show %/voltage.
+- **ESP32‑S3**: Waveshare ESP32-S3 Zero or compatable. <a href="https://www.aliexpress.us/item/3256808233319699.html?spm=a2g0o.order_list.order_list_main.5.53061802JTioD2&gatewayAdapt=glo2usa">AliExpress (Clone)</a>, <a href="https://www.amazon.com/dp/B0CHYHGYRH?th=1">Amazon</a>.
+- **Waveshare 2.42″ OLED**. <a href="https://www.waveshare.com/2.42inch-oled-module.htm">WaveShare</a>, <a href="https://www.amazon.com/dp/B0CM3RHMGP">Amazon</a>.
+- *(Optional)* **LC709203F** fuel gauge (Adafruit breakout works great). <a href="https://www.adafruit.com/product/4712">Adafruit</a>.
+- *(Optional)* LiPo pack if you want the battery widget to show %/voltage. <a href="https://www.adafruit.com/product/1781">Adafruit</a>.
+- *Power Switches*: <a href="https://www.amazon.com/dp/B0DR2DPW59?th=1">Amazon</a>
+- *Screws*: 4x 2mm x 4mm Pan head screws.
 
 ### Controller port build
-- **ESP32‑S3**: Waveshare ESP32-S3 Zero or compatable.
-- **Waveshare 2.42″ OLED**.
+- **ESP32‑S3**: Waveshare ESP32-S3 Zero or compatable. <a href="https://www.aliexpress.us/item/3256808233319699.html?spm=a2g0o.order_list.order_list_main.5.53061802JTioD2&gatewayAdapt=glo2usa">AliExpress (Clone)</a>, <a href="https://www.amazon.com/dp/B0CHYHGYRH?th=1">Amazon</a>.
+- **Waveshare 2.42″ OLED**. <a href="https://www.waveshare.com/2.42inch-oled-module.htm">WaveShare</a>, <a href="https://www.amazon.com/dp/B0CM3RHMGP">Amazon</a>.
 - **2 Caps**: 1x 100uF, 1X 10uF
-- **Sacrificial OG XBOX dongle**: Needed to actually interface with the xbox controller port for power.
+- **Sacrificial OG XBOX dongle**: Needed to actually interface with the xbox controller port for power. <a href="https://www.aliexpress.us/item/3256803253950796.html?spm=a2g0o.productlist.main.9.336eCivDCivDaG&algo_pvid=997e7e34-7d89-4b7c-a748-d8c6e39694a0&algo_exp_id=997e7e34-7d89-4b7c-a748-d8c6e39694a0-8&pdp_ext_f=%7B%22order%22%3A%22648%22%2C%22eval%22%3A%221%22%2C%22fromPage%22%3A%22search%22%7D&pdp_npi=6%40dis%21USD%212.74%210.99%21%21%212.74%210.99%21%402101c59817585859608863421ecf27%2112000025800335880%21sea%21US%210%21ABX%211%210%21n_tag%3A-29910%3Bd%3A7fd4d803%3Bm03_new_user%3A-29895%3BpisId%3A5000000174448336&curPageLogUid=zk6ZlcgXIpxN&utparam-url=scene%3Asearch%7Cquery_from%3A%7Cx_object_id%3A1005003440265548%7C_p_origin_prod%3A">AliExpress</a>
+- **Picoblade Wiring kit:** <a href="https://www.amazon.com/1-25mm-Connectors-Pre-Crimped-Pixhawk-Silicone/dp/B07S18D3RN/ref=sr_1_7?crid=86ODWZP1A6T0&dib=eyJ2IjoiMSJ9.YBe0_2n5_7xBVWTYGBc9tXnNvlqkj8BkiQFtvQS_5xsOBhFz5jWBBLEPUmqo5PFwdmBq-ZT7zJx7xt0ffwcumgq2dBEwWinauZjDotWsJx1PyXUTV-dKz7uScUxa7XOcttjNMJG4vlD9akdLiPiEdDXgOwBG9r99-e_R1khgKFeKvNKfVOZ3MDGtXD4M7O_LMz3PpaeEFEnOSYBqae5WC96CdWgnCu_NtYBJDZYIDBCH5y-03oIn6juerycC7Q2myOHsXYvkQyvpoPPh7RxT1KWXOLpo2cxJIiwgCiGnyAM.2FdaC2BOccSLj87AAR_PSk1NdEWa2JEhb1aTgxUNwjI&dib_tag=se&keywords=picoblade+1.25&qid=1758587206&sprefix=picoblade+%2Caps%2C205&sr=8-7">Amazon</a>, tou will need to the the 7p connectors.
 
+---
+
+## Purchase options:
+
+Controller port kit: Darkone Customs (coming soon!)
+
+---
 
 
 ### Wiring (I²C bus shared by OLED + LC709203F)
@@ -54,60 +68,52 @@ A Type D Expansion unit is required for these displays to properly work and disp
 | 3V3    | 3V3          | VCC  | VIN       |
 | GND    | GND          | GND  | GND       |
 
-> 🔧 Pin definitions live in your `setup()` (e.g. `main.cpp`):
-> ```cpp
-> static const int PIN_SDA = 6;   // ESP32‑S3 default in this project
-> static const int PIN_SCL = 7;
-> ```
-> If you’re **not** using an ESP32‑S3, move I²C to safe pins for your board (classic ESP32: avoid GPIO 6–11).
 
 ---
 
-## 🔌 Firmware Overview
-
-### Display / UI (`display.cpp`)
-- Uses **U8g2** with the SSD1309 (128×64, I²C 0x3D).
-- Screen set: **WAITING → MAIN → SECOND → HEALTH → WEATHER? → MAIN** (weather only when enabled in prefs).
-- Inactivity timers (based on “any UDP packet” last‑seen).
-- Battery widget appears right‑justified on the “Fan” row if LC709203F is detected.
-- Weather uses **Open‑Meteo** (no key) over HTTPS (certificate check disabled for simplicity).
-
-### UDP ingest (`udp_typed.cpp/.h`)
-- Three typed sockets (“A/B/C”) with a small ring buffer.
-- Auto (re)binds when Wi‑Fi connects; closes & re‑arms if Wi‑Fi drops.
-- Public helpers:
-  - `TypeDUDP::begin()/loop()/next()` – non‑blocking packet pump.
-  - `TypeDUDP::lastSeenMs()` and queue APIs (`available()/next()`).
-- Packets expected by the display:
-  - **Port A** (44 bytes): `int32 fan, cpu, amb; char app[32];`
-  - **Port B** (28 bytes): `int32 t, a, pic, xb, enc, x6, x7;`  
-    *(code auto‑detects which two fields are width/height based on the encoder field)*
-  - **Port C** (text): `EE:SN=...|MAC=...|REG=...`
-
-> Defaults for the ports are defined in `udp_typed.h` as `UDP_TYPED_DEFAULT_PORT_A/B/C`.  
-> Keep your sender in sync with those values or pass custom ports to `TypeDUDP::begin()`.
-
-### Wi‑Fi manager / Web portal (`wifimgr.cpp`)
-- Starts as **AP+STA**; launches a captive portal at **Type D Wireless Display Setup**.
-- Endpoints:
-  - `/` – HTML portal (Wi‑Fi scan/connect + Weather config).
-  - `/scan`, `/save`, `/forget`, `/status` – Wi‑Fi management.
-  - `/weather/get`, `/weather/save`, `/weather/autoloc` – Weather prefs & IP geo (ip‑api.com).
-  - Captive helpers: `/generate_204`, `/hotspot-detect.html`, `/captiveportal`, etc.
-- Preferences namespaces:
-  - `wifi` → `ssid`, `pass`
-  - `weather` → `enabled`, `units` (“F”/“C”), `lat`, `lon`, `refresh` (min), `name`
-
-### Battery gauge (LC709203F)
-- Shares the same I²C bus, default address **0x0B**.
-- On‑screen value is **smoothed** to avoid boot‑time jitter (warm‑up + exponential smoothing).
-- If percent is invalid but voltage is good, a rough voltage→% curve is used as a fallback.
-- Optional APA config via build defines:
-  - `LC709203F_APA_2000MAH`, `LC709203F_APA_2200MAH`, `LC709203F_APA_2500MAH`, etc.
-
----
 
 ## 🧪 Building
+
+
+### HardWare:
+
+#### Preparation:
+
+Display needs the 2 0ohm resistors swapped from SPI to I2C. If installing in the controller port shell, the pin header will need to be desoldered
+
+
+#### Desktop Build:
+
+For the desktop case, it's recommended to use an 18650 cell; other cells may work, but haven't been tested.
+
+Images:
+
+<img src="https://github.com/Darkone83/Type-D-Wireless-Display/blob/main/images/Desktop%201.jpg" height=400 width=400><img src="https://github.com/Darkone83/Type-D-Wireless-Display/blob/main/images/Desktop%202.jpg" height=400 width=400>
+
+#### Controller Port:
+
+Use some double-sided adhesive to assist with securing the display to the case. You will also need the adhesive for either the PCB installation or bare devboard installation.
+
+Keep wire runs as short as possible. For the controller port connector, ensure it's flush with the rear of the case. Clearance is tight; test fit often during installation. 
+
+If installing with a bare dev board, review the images for capacitor installation. The 100uF cap should be attached to the dev board, and the 10uF cap should be placed on the OLED's power pins. 
+
+If installing the PCB, you will likely need to create your own wiring harness. View pinouts below
+
+Images:
+
+<img src="https://github.com/Darkone83/Type-D-Wireless-Display/blob/main/images/Controller%201.jpg" height=400 width=400><img src="https://github.com/Darkone83/Type-D-Wireless-Display/blob/main/images/Controller%202.jpg" height=400 width=400>
+
+Note: Images shown are from development builds
+
+### Pinouts:
+
+<img src="https://github.com/Darkone83/Type-D-Wireless-Display/blob/main/images/CN1.png">
+
+
+---
+
+## Software prep:
 
 ### Arduino IDE
 1. Install **ESP32** board support (ESP32‑S3 enabled).
