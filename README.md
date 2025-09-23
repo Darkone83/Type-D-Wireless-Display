@@ -2,12 +2,15 @@
 
 <div align=center>
   <img src="https://github.com/Darkone83/Type-D-Wireless-Display/blob/main/images/DC%20logo.png">
+  <p></p>
+  <img src="https://github.com/Darkone83/Type-D-Wireless-Display/blob/main/images/Disp.jpg" height=400>
 </div>
+<p></p>
 
 A tiny OLED “status screen” for original Xbox setups (and other sources), driven over Wi‑Fi/UDP.  
 Shows a main system summary, a dense second page, a health page, and an optional weather page, and insignia leaderboard page.
 Designed for the Waveshare 2.42″ SSD1309 I²C panel (128×64), with added support expermental for US2066 OLED displays.
-A Type D Expansion unit is required for these displays to properly work and display data.
+A Type D Expansion unit is required for these displays to properly work and display data. See more info <a href="https://github.com/Darkone83/Type-D/tree/main/EXP%20Src">Here</a>
 
 ---
 
@@ -53,7 +56,7 @@ A Type D Expansion unit is required for these displays to properly work and disp
 
 ## Purchase options:
 
-Controller port kit: Darkone Customs (coming soon!)
+Controller port kit: <a href="https://www.darkonecustoms.com/store/p/type-d-wireless-oled-kit">Darkone Customs</a>
 
 ---
 
