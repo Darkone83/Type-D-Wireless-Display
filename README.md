@@ -10,7 +10,7 @@
 A tiny OLED “status screen” for original Xbox setups (and other sources), driven over Wi‑Fi/UDP.  
 Shows a main system summary, a dense second page, a health page, and an optional weather page, and insignia leaderboard page.
 Designed for the Waveshare 2.42″ SSD1309 I²C panel (128×64), with added support expermental for US2066 OLED displays.
-A Type D Expansion unit is required for these displays to properly work and display data. See more info <a href="https://github.com/Darkone83/Type-D/tree/main/EXP%20Src">Here</a>
+A Type D Expansion unit is required for these displays to properly work and display data. See more info <a href="https://github.com/Darkone83/Type-D/tree/main/EXP%20Src">Here</a>. To display the App name, the XBMC4Gamers script for the Type D Expansion unit is required.
 
 ---
 
@@ -31,7 +31,6 @@ A Type D Expansion unit is required for these displays to properly work and disp
 - **Quote ticker** on MAIN with periodic rotation.
 - **Web setup portal** (captive portal) for Wi‑Fi + Weather settings.
 - **mDNS**: `http://typeddisp.local/` (when joined to your LAN).
-- **UDP ring buffer** – robust ingest across three “typed” UDP ports (A/B/C).
 
 ---
 
@@ -78,7 +77,7 @@ Controller port kit: <a href="https://www.darkonecustoms.com/store/p/type-d-wire
 ## 🧪 Building
 
 
-### HardWare:
+### Hardware:
 
 #### Preparation:
 
@@ -87,7 +86,7 @@ Display needs the 2 0ohm resistors swapped from SPI to I2C. If installing in the
 
 #### Desktop Build:
 
-For the desktop case, it's recommended to use an 18650 cell; other cells may work, but haven't been tested.
+For the desktop case, it's recommended to use a 18650 cell; other cells may work, but haven't been tested.
 
 Images:
 
@@ -157,14 +156,11 @@ Note: Images shown are from development builds
   Enable it in the portal, provide a valid lat/lon (or use Auto‑detect), and ensure the device has Internet access.
 - **Battery widget doesn’t appear**  
   LC709203F not detected on I²C 0x0B, or warm‑up not finished. Check wiring and that the APA define matches your pack (optional but recommended).
-- **Display looks mirrored/rotated**  
-  Use `u8g2.setFlipMode(1)` or rotate in the constructor variant if needed.
 
 ---
 
 ## 🗺️ Roadmap
 
-- On‑device OTA (web‑update) page.
 - Scroll‑in place for long resolution strings.
 - Optional iconography for weather (we currently use text‑only for reliability).
 
