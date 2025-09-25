@@ -124,7 +124,7 @@ Note: Images shown are from development builds
    - **ESP Async WebServer** (+ **AsyncTCP** for ESP32)
    - **Adafruit LC709203F**
    - **ArduinoJson**
-3. Open the project, confirm I²C pins and OLED address (0x3D), then upload.
+3. Open the project, confirm I²C pins, then upload.
 
 ---
 
