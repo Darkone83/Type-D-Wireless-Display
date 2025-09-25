@@ -81,7 +81,7 @@ Controller port kit: <a href="https://www.darkonecustoms.com/store/p/type-d-wire
 
 #### Preparation:
 
-Display needs the 2 0ohm resistors swapped from SPI to I2C. If installing in the controller port shell, the pin header will need to be desoldered
+Display needs the 2 0ohm resistors swapped from SPI position to the I2C position. If installing in the controller port shell, the pin header will need to be desoldered
 
 
 #### Desktop Build:
