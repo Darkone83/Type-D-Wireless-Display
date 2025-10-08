@@ -81,7 +81,7 @@ Controller port kit: <a href="https://www.darkonecustoms.com/store/p/type-d-wire
 
 #### Preparation:
 
-Display needs the 2 0ohm resistors swapped from SPI to I2C. If installing in the controller port shell, the pin header will need to be desoldered
+Display needs the 2 0ohm resistors swapped from SPI position to the I2C position. If installing in the controller port shell, the pin header will need to be desoldered
 
 
 #### Desktop Build:
@@ -124,7 +124,7 @@ Note: Images shown are from development builds
    - **ESP Async WebServer** (+ **AsyncTCP** for ESP32)
    - **Adafruit LC709203F**
    - **ArduinoJson**
-3. Open the project, confirm I²C pins and OLED address (0x3D), then upload.
+3. Open the project, confirm I²C pins, then upload.
 
 ---
 
