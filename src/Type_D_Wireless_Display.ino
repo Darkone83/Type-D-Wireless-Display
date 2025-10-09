@@ -18,7 +18,7 @@
 // -------- OLED (Waveshare 2.42" SSD1309 I2C @ 0x3D) --------
 static const int PIN_SDA = 6;
 static const int PIN_SCL = 7;
-static const int PIN_RST = 9;   // SSD1309 RESET is wired to GPIO 9
+static const int PIN_RST = 8;   // SSD1309 RESET is wired to GPIO 8
 
 // If you see shifted output, switch to NONAME0.
 U8G2_SSD1309_128X64_NONAME2_F_HW_I2C u8g2(U8G2_R0, /* reset = */ PIN_RST);
