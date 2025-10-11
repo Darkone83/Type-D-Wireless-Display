@@ -66,7 +66,7 @@ Controller port kit: <a href="https://www.darkonecustoms.com/store/p/type-d-wire
 |-------:|:-------------|:-----|:----------|
 | SDA    | **GPIO 6**   | SDA  | SDA       |
 | SCL    | **GPIO 7**   | SCL  | SCL       |
-| RST    | **GPIO 9**   | RST  |           |
+| RST    | **GPIO 8**   | RST  |           |
 | 3V3    | 3V3          | VCC  | VIN       |
 | GND    | GND          | GND  | GND       |
 
