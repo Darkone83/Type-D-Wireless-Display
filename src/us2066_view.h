@@ -1,81 +1,77 @@
 #pragma once
 #include <Arduino.h>
 #include "us2066.h"
-#include <vector>
 
-// US2066 20x4 "alternate display" with 4 pages (no weather).
-// PAGE A: Title (ctr), Temps/Fan, AV mode, Resolution
-// PAGE B: Encoder+Region, MAC, Serial, Xbox version
-// PAGE 3: Health/Net (RSSI, IP, Battery, Uptime/Pkts)  [Region moved to Page B]
-// PAGE 4: Simplified Insignia (title + 3-line scrolling leaderboard)
+// Weather (lightweight surface; the module does the heavy lifting)
+#include "weather.h"
 
 struct US2066_Status {
-  // Page A
-  const char* title       = nullptr;   // app/game or "Type-D"
-  int   cpu_temp_c        = INT32_MIN; // INT32_MIN => unknown
-  int   amb_temp_c        = INT32_MIN; // "
-  int   fan_percent       = -1;        // 0..100; -1 => unknown
-  const char* av_mode     = nullptr;   // "HDMI","YPbPr","VGA","COMP" etc.
-  const char* resolution  = nullptr;   // "1280x720@60" etc.
+  // Page 0 / 1
+  const char* title       = nullptr;
+  int   cpu_temp_c        = INT32_MIN;
+  int   amb_temp_c        = INT32_MIN;
+  int   fan_percent       = -1;
 
-  // Page B
-  const char* encoder     = nullptr;   // "CONEX","FOCUS","XCAL"
-  const char* region      = nullptr;   // "NTSC","PAL","NTSC-J"
-  const char* mac         = nullptr;   // "xx:xx:xx:xx:xx:xx"
-  const char* serial      = nullptr;   // console serial
-  const char* xbox_ver    = nullptr;   // "1.6b" etc.
+  // Derived or raw video info (Page 1)
+  const char* av_mode     = nullptr;   // derived from av_raw if null
+  const char* resolution  = nullptr;   // derived from res_w/res_h if null
+  int   av_raw            = -1;
+  int   res_w             = 0;
+  int   res_h             = 0;
 
-  // Page 3 (health/net)
-  int   rssi_dbm          = INT32_MIN; // WiFi RSSI dBm
-  const char* ip          = nullptr;   // "192.168.1.23"
-  int   batt_percent      = -1;        // 0..100; -1 => unknown
-  float batt_volts        = -1.0f;     // <0 => unknown
-  uint32_t uptime_ms      = 0;         // uptime
-  uint32_t pkt_count      = 0;         // optional total packet count
-};
+  // Encoder/xbox (Page 2)
+  int   enc_raw           = -1;
+  int   xboxver_code      = -1;
+  const char* encoder     = nullptr;   // derived from enc_raw if null
+  const char* region      = nullptr;   // from EE
+  const char* mac         = nullptr;   // from EE
+  const char* serial      = nullptr;   // from EE
+  const char* xbox_ver    = nullptr;   // from SMC or guess
 
-// Optional Insignia feed for Page 4
-struct US2066_InsigniaFeed {
-  const char* title = "Insignia";
-  std::vector<String> lines;           // preformatted leaderboard rows
+  // Page 3 (system/net)
+  int   rssi_dbm          = INT32_MIN;
+  const char* ip          = nullptr;
+  int   batt_percent      = -1;
+  float batt_volts        = -1.0f;
+  uint32_t uptime_ms      = 0;
+  uint32_t pkt_count      = 0;
 };
 
 class US2066View {
 public:
   US2066View();
 
-  bool attach(US2066* dev);                       // device must be begun already
-  void setStatus(const US2066_Status& s);         // copy snapshot
-  void setInsignia(const US2066_InsigniaFeed& f); // copy lines/title (page 4)
-  void loop();                                    // draw current page (auto-rotates)
+  bool attach(US2066* dev);
+  void setStatus(const US2066_Status& s);
 
-  // Options
-  void setPagePeriod(uint32_t ms);                // default ~4500ms
-  void setInsigniaScrollPeriod(uint32_t ms);      // default 800ms
-  void forcePage(uint8_t idx);                    // 0..3
+  // Backwards-compat no-ops (was used for Insignia previously)
+  inline void setInsignia(...) {}
+  inline void setInsigniaScrollPeriod(uint32_t) {}
+
+  void loop();
+
+  void setPagePeriod(uint32_t ms);
+  void forcePage(uint8_t idx);
   void clear();
   void splash(const char* l0, const char* l1=nullptr,
               const char* l2=nullptr, const char* l3=nullptr);
 
 private:
   US2066* d_ = nullptr;
-  US2066_Status st_;
-  US2066_InsigniaFeed insig_;
+  US2066_Status st_{};
 
   uint8_t  page_ = 0;
   uint32_t last_page_ms_ = 0;
   uint32_t page_ms_ = 4500;
 
-  // Insignia page scroll state
-  uint32_t insig_last_ms_ = 0;
-  uint32_t insig_step_ms_ = 800;
-  int      insig_offset_  = 0; // top line index inside insig_.lines
+  // UDP ingest + merge into status
+  void drainUdpAndMergeStatus();
 
-  // page renderers
-  void drawPageA();
-  void drawPageB();
-  void drawPage3();
-  void drawPage4();
+  // pages
+  void drawPageA();  // App + temps + AV + res
+  void drawPageB();  // Encoder/region/MAC/Serial/Xbox ver
+  void drawPage3();  // WiFi/IP/Batt/Uptime
+  void drawPage4();  // Weather (if enabled & ready); else skipped
 
   // helpers
   static void padTrim(char* dst, const char* src, uint8_t width, bool center=false);

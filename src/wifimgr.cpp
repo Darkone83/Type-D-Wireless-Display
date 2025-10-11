@@ -50,38 +50,96 @@ static void saveDisplayPref(const String& m) {
 String getDisplay() { return dispMode; }
 bool   isUS2066Selected() { return dispMode == "us2066"; }
 
-// ===== OTA HTML (very small) =====
+// ===== OTA HTML (progress + client-driven reboot) =====
 static const char OTA_PAGE[] PROGMEM = R"html(
 <!DOCTYPE html><html><head>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Type D OTA</title>
 <style>
 body{background:#111;color:#EEE;font-family:sans-serif;margin:24px}
-.card{max-width:360px;margin:auto;background:#1a1a1a;border:1px solid #333;border-radius:10px;padding:14px}
+.card{max-width:420px;margin:auto;background:#1a1a1a;border:1px solid #333;border-radius:10px;padding:14px}
 button,input[type=submit]{background:#299a2c;color:#fff;border:0;border-radius:6px;padding:.6em 1em}
 input[type=file]{width:100%;margin:.6em 0}
 .row{display:flex;gap:.5em}.row>*{flex:1}
 .danger{background:#a22}
 small{opacity:.75}
 a{color:#8acfff}
+progress{width:100%;height:16px;appearance:none;-webkit-appearance:none;background:#222;border:1px solid #444;border-radius:6px}
+#barwrap{margin:.6em 0}
+#ok{color:#5fd35f}
+#err{color:#ff6b6b}
 </style></head><body>
 <div class="card">
   <h2>OTA Update</h2>
-  <form method="POST" action="/ota" enctype="multipart/form-data" id="f">
-    <input type="file" name="firmware" accept=".bin,.bin.gz" required>
+  <form id="f">
+    <input type="file" name="firmware" id="fw" accept=".bin,.bin.gz" required>
+    <div id="barwrap" style="display:none">
+      <progress id="pb" max="100" value="0"></progress>
+      <div id="pct">0%</div>
+    </div>
     <div class="row">
       <input type="submit" value="Upload & Flash">
       <button type="button" onclick="reboot()" class="danger">Reboot</button>
     </div>
   </form>
   <div id="s"></div>
-  <small>Upload a compiled ESP32 firmware (.bin). Device will reboot automatically on success.</small>
+  <small>Success!!! Rebooting.</small>
   <p><a href="/"><- Back to Setup</a></p>
 </div>
 <script>
-const s=document.getElementById('s');
-function reboot(){ fetch('/reboot',{method:'POST'}).then(_=>location.reload()).catch(_=>0); }
-document.getElementById('f').addEventListener('submit', e=>{ s.textContent='Uploading...'; });
+const s = document.getElementById('s');
+const pb = document.getElementById('pb');
+const pct = document.getElementById('pct');
+const barwrap = document.getElementById('barwrap');
+
+function reboot(){
+  s.textContent = 'Rebooting...';
+  fetch('/reboot',{method:'POST'}).catch(()=>0);
+  setTimeout(()=>location.reload(), 2500);
+}
+
+document.getElementById('f').addEventListener('submit', (e)=>{
+  e.preventDefault();
+  const file = document.getElementById('fw').files[0];
+  if(!file){ s.innerHTML = '<span id="err">Choose a file first.</span>'; return; }
+
+  barwrap.style.display='block'; pb.value=0; pct.textContent='0%';
+  s.textContent='Uploading...';
+
+  const fd = new FormData(); fd.append('firmware', file);
+  const xhr = new XMLHttpRequest();
+  xhr.open('POST','/ota');
+
+  xhr.upload.onprogress = (ev)=>{
+    if(ev.lengthComputable){
+      const p = Math.round((ev.loaded/ev.total)*100);
+      pb.value = p; pct.textContent = p + '%';
+    }
+  };
+
+  xhr.onload = ()=>{
+    try {
+      const j = JSON.parse(xhr.responseText||'{}');
+      if (xhr.status === 200 && j.ok) {
+        s.innerHTML = '<span id="ok">Update uploaded successfully ('+(j.bytes||0)+' bytes). Rebooting in 2s...</span>';
+        setTimeout(()=>reboot(), 2000);
+      } else {
+        s.innerHTML = '<span id="err">Update failed.</span>';
+      }
+    } catch(e){
+      if (xhr.status === 200) {
+        s.innerHTML = '<span id="ok">Update uploaded. Rebooting in 2s...</span>';
+        setTimeout(()=>reboot(), 2000);
+      } else {
+        s.innerHTML = '<span id="err">Upload error.</span>';
+      }
+    }
+  };
+
+  xhr.onerror = ()=>{ s.innerHTML = '<span id="err">Network error.</span>'; };
+
+  xhr.send(fd);
+});
 </script>
 </body></html>
 )html";
@@ -151,29 +209,30 @@ static void registerOTARoutes() {
     req->send_P(200, "text/html", OTA_PAGE);
   });
 
-  // OTA upload/flash
+  // OTA upload/flash (streamed)
   server.on(
     "/ota",
     HTTP_POST,
-    // When upload finishes:
+    // When upload finishes: send JSON and DO NOT reboot here
     [](AsyncWebServerRequest* request){
       bool ok = !Update.hasError();
+      String msg;
       if (ok) {
-        request->send(200, "text/plain", "Update successful, rebooting...");
-        Serial.println("[OTA] Update successful, rebooting...");
-        LedStat::setStatus(LedStatus::Booting);
-        delay(500);
-        ESP.restart();
+        msg = "{\"ok\":true,\"bytes\":" + String(Update.progress()) + "}";
+        request->send(200, "application/json", msg);
+        Serial.println("[OTA] Update uploaded OK; client will reboot device.");
       } else {
-        request->send(500, "text/plain", "Update failed");
-        Serial.println("[OTA] Update failed");
+        msg = "{\"ok\":false}";
+        request->send(500, "application/json", msg);
+        Serial.println("[OTA] Update failed.");
       }
+      // Do not reboot here; the client JS calls /reboot after showing success.
     },
     // Upload handler (stream chunks to flash)
     [](AsyncWebServerRequest* request, String filename, size_t index, uint8_t* data, size_t len, bool final){
       if (index == 0) {
-        Serial.printf("[OTA] Starting update: %s\n", filename.c_str());
-        LedStat::setStatus(LedStatus::Booting);
+        Serial.printf("[OTA] Starting: %s\n", filename.c_str());
+        LedStat::setStatus(LedStatus::Booting);  // optional: show "busy"
         if (!Update.begin(UPDATE_SIZE_UNKNOWN)) {
           Update.printError(Serial);
         }
@@ -193,20 +252,22 @@ static void registerOTARoutes() {
     }
   );
 
-  // Reboot helper
+  // Reboot helper (client calls this after success)
   server.on("/reboot", HTTP_POST, [](AsyncWebServerRequest* req){
     req->send(200, "text/plain", "Rebooting...");
     Serial.println("[OTA] Reboot requested");
     LedStat::setStatus(LedStatus::Booting);
-    delay(300);
+    // tiny delay so response flushes
+    auto t = millis() + 300;
+    while (millis() < t) { delay(1); }
     ESP.restart();
   });
-  // Optional GET for convenience
   server.on("/reboot", HTTP_GET, [](AsyncWebServerRequest* req){
     req->send(200, "text/plain", "Rebooting...");
     Serial.println("[OTA] Reboot requested (GET)");
     LedStat::setStatus(LedStatus::Booting);
-    delay(300);
+    auto t = millis() + 300;
+    while (millis() < t) { delay(1); }
     ESP.restart();
   });
 }
@@ -299,7 +360,7 @@ void startPortal() {
     <div class="card">
       <label for="d_mode">Active Display</label>
       <select id="d_mode">
-        <option value="ssd1309">OLED 128x64 (SSD1309) — default</option>
+        <option value="ssd1309">OLED 128x64 (SSD1309) - default</option>
         <option value="us2066">Character OLED 20x4 (US2066)</option>
       </select>
       <small>Only one display can be active. Weather is skipped on US2066.</small>

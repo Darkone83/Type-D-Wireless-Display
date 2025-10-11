@@ -16,7 +16,7 @@ static AsyncWebServer server(80);
 namespace WiFiMgr {
 
 static String ssid, password;
-static Preferences prefs;           // used for both wifi creds and weather config
+static Preferences prefs;           // used for wifi creds, weather config, and UI/display
 static DNSServer dnsServer;
 static std::vector<String> lastScanResults;
 
@@ -29,6 +29,26 @@ static unsigned long lastAttempt = 0;
 static unsigned long retryDelay = 3000;
 
 AsyncWebServer& getServer() { return server; }
+
+// ===== NEW: Display selection (persisted) =====
+static String dispMode = "ssd1309";   // "ssd1309" (default) or "us2066"
+
+static void loadDisplayPref() {
+  prefs.begin("ui", true);
+  dispMode = prefs.getString("display", "ssd1309");
+  prefs.end();
+  if (dispMode != "us2066") dispMode = "ssd1309"; // clamp to known values
+}
+static void saveDisplayPref(const String& m) {
+  String v = (m == "us2066") ? "us2066" : "ssd1309";
+  prefs.begin("ui", false);
+  prefs.putString("display", v);
+  prefs.end();
+  dispMode = v;
+}
+// Public helpers (declare in .h)
+String getDisplay() { return dispMode; }
+bool   isUS2066Selected() { return dispMode == "us2066"; }
 
 // ===== OTA HTML (very small) =====
 static const char OTA_PAGE[] PROGMEM = R"html(
@@ -274,6 +294,19 @@ void startPortal() {
       <div id="w_status" class="status"></div>
       <small>We use Open-Meteo (no API key). Auto-detect uses ip-api.com.</small>
     </div>
+
+    <h2>Display</h2>
+    <div class="card">
+      <label for="d_mode">Active Display</label>
+      <select id="d_mode">
+        <option value="ssd1309">OLED 128x64 (SSD1309) — default</option>
+        <option value="us2066">Character OLED 20x4 (US2066)</option>
+      </select>
+      <small>Only one display can be active. Weather is skipped on US2066.</small>
+      <div class="row">
+        <button type="button" onclick="saveDisplay()" class="btn-primary">Save Display</button>
+      </div>
+    </div>
   </div>
 
 <script>
@@ -288,7 +321,7 @@ function scan() {
     let o=document.createElement('option'); o.value=''; o.text='Scan failed'; dd.appendChild(o);
   });
 }
-setInterval(scan, 2000); window.onload = ()=>{ scan(); loadWeather(); };
+setInterval(scan, 2000); window.onload = ()=>{ scan(); loadWeather(); loadDisplay(); };
 
 function saveWifi(){
   let ssid=document.getElementById('ssid').value;
@@ -338,6 +371,18 @@ function autoLoc(){
       document.getElementById('w_status').innerText='Auto-detect failed.';
     }
   }).catch(()=>{ document.getElementById('w_status').innerText='Auto-detect failed.'; });
+}
+
+// === Display mode helpers ===
+function loadDisplay(){
+  fetch('/display/get').then(r=>r.json()).then(j=>{
+    document.getElementById('d_mode').value = j.display || 'ssd1309';
+  }).catch(()=>{});
+}
+function saveDisplay(){
+  let v = document.getElementById('d_mode').value || 'ssd1309';
+  fetch('/display/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({display:v})})
+    .then(r=>r.text()).then(t=>alert(t)).catch(()=>{});
 }
 </script>
 </body></html>
@@ -435,6 +480,32 @@ function autoLoc(){
 
     req->send(200, "application/json", out);
   });
+
+  // ===== NEW: Display mode endpoints =====
+  server.on("/display/get", HTTP_GET, [](AsyncWebServerRequest* req){
+    String json = "{\"display\":\"" + dispMode + "\"}";
+    req->send(200, "application/json", json);
+  });
+
+  server.on("/display/save", HTTP_POST,
+    [](AsyncWebServerRequest* req){},
+    NULL,
+    [](AsyncWebServerRequest* req, uint8_t* data, size_t len, size_t, size_t){
+      String body; body.reserve(len);
+      for (size_t i=0;i<len;i++) body += (char)data[i];
+
+      // Very small parse: {"display":"us2066"} or "ssd1309"
+      int ks = body.indexOf("\"display\":\"");
+      String v = "ssd1309";
+      if (ks >= 0) {
+        ks += 11; // after "display\":\""
+        int ke = body.indexOf("\"", ks);
+        if (ke > ks) v = body.substring(ks, ke);
+      }
+      saveDisplayPref(v);
+      req->send(200, "text/plain", "Display saved: " + dispMode);
+    }
+  );
 
   // ===== Existing endpoints =====
 
@@ -576,6 +647,7 @@ void tryConnect() {
 void begin() {
   LedStat::setStatus(LedStatus::Booting);
   loadCreds();
+  loadDisplayPref(); // NEW: load persisted display selection
   startPortal();
   if (ssid.length() > 0) tryConnect();
 }

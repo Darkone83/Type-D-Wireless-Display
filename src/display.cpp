@@ -42,7 +42,7 @@ namespace TypeDDisplay {
 
 // ===== Module state =====
 static U8G2* g = nullptr;
-static bool g_dbg = false;
+static bool g_dbg = true;
 
 // Hold times
 static uint32_t HOLD_MAIN_MS    = 15000;

@@ -35,6 +35,9 @@
 #include <WiFiClientSecure.h>
 #include <ArduinoJson.h>
 
+// --- Insignia 5th screen (NEW) ---
+#include "insignia.h"
+
 namespace TypeDDisplay {
 
 // ===== Module state =====
@@ -46,13 +49,14 @@ static uint32_t HOLD_MAIN_MS    = 15000;
 static uint32_t HOLD_SECOND_MS  =  5000;
 static uint32_t HOLD_HEALTH_MS  =  5000;
 static uint32_t HOLD_WEATHER_MS =  7000;   // NEW: weather screen hold
+static uint32_t HOLD_INSIGNIA_MS= 12000;   // NEW: insignia screen hold
 
 // Draw cadence
 static const  uint32_t DRAW_INTERVAL_MS = 200;
 static        uint32_t lastDraw = 0;
 
 // Screens
-enum class Screen : uint8_t { WAITING=0, MAIN, SECOND, HEALTH, WEATHER };
+enum class Screen : uint8_t { WAITING=0, MAIN, SECOND, HEALTH, WEATHER, INSIGNIA };
 static Screen   cur = Screen::WAITING;
 static uint32_t nextSwitchAt = 0;
 
@@ -589,6 +593,10 @@ static void onPacket() {
         MAIN.cpu_c = m.cpu;
         MAIN.amb_c = m.amb;
         memcpy(MAIN.app, m.app, 32); MAIN.app[32] = 0;
+
+        // NEW: forward App name to Insignia
+        Insignia::onAppName(MAIN.app);
+
         if (g_dbg) Serial.printf("[DISPLAY] MAIN fan=%d cpu=%d amb=%d app='%s'\n",
                                  MAIN.fan, MAIN.cpu_c, MAIN.amb_c, MAIN.app);
       }
@@ -920,12 +928,18 @@ static void drawWeatherScreen(int xOffset /*=0*/) {
 
 // ===== Transitions (slide-only) =====
 static void drawWithOffsets(Screen s, int x) {
-  if      (s==Screen::MAIN)    drawMainScreen(x);
-  else if (s==Screen::SECOND)  drawSecondScreen(x);
-  else if (s==Screen::HEALTH)  drawHealthScreen(x);
-  else                         drawWeatherScreen(x);
+  if      (s==Screen::MAIN)     drawMainScreen(x);
+  else if (s==Screen::SECOND)   drawSecondScreen(x);
+  else if (s==Screen::HEALTH)   drawHealthScreen(x);
+  else if (s==Screen::WEATHER)  drawWeatherScreen(x);
+  else { // INSIGNIA fills entire frame; ignore x offset and draw directly
+    Insignia::draw(g);
+  }
 }
 static void doTransition(Screen to) {
+  // Skip slide animation for INSIGNIA -> it animates internally (scroll)
+  if (to == Screen::INSIGNIA) { Insignia::draw(g); return; }
+
   uint32_t r = (uint32_t)esp_random();
   nextXition = (r & 1) ? Xition::SLIDE_IN_RIGHT : Xition::SLIDE_IN_LEFT;
   const int SCRW=128, step=16;
@@ -956,27 +970,33 @@ void begin(U8G2* u8) {
   // Load weather prefs once
   loadWeatherPrefs();
 
+  // Start Insignia module (uses default server base)
+  Insignia::begin(g_dbg);
+
   pickRandomQuote();
   if (g_dbg) Serial.printf("[DISPLAY] begin (waiting for UDP data)\n");
 }
 
 static Screen nextScreen(Screen s) {
-  // Include WEATHER only if enabled; otherwise skip it.
+  // Insert INSIGNIA after HEALTH when active; then WEATHER; else loop as before.
   switch (s) {
-    case Screen::MAIN:   return Screen::SECOND;
-    case Screen::SECOND: return Screen::HEALTH;
-    case Screen::HEALTH: return W.enabled ? Screen::WEATHER : Screen::MAIN;
-    case Screen::WEATHER:return Screen::MAIN;
-    default:             return Screen::MAIN;
+    case Screen::MAIN:     return Screen::SECOND;
+    case Screen::SECOND:   return Screen::HEALTH;
+    case Screen::HEALTH:   return Insignia::isActive() ? Screen::INSIGNIA
+                                                       : (W.enabled ? Screen::WEATHER : Screen::MAIN);
+    case Screen::INSIGNIA: return W.enabled ? Screen::WEATHER : Screen::MAIN;
+    case Screen::WEATHER:  return Screen::MAIN;
+    default:               return Screen::MAIN;
   }
 }
 static uint32_t holdFor(Screen s) {
   switch (s) {
-    case Screen::MAIN:    return HOLD_MAIN_MS;
-    case Screen::SECOND:  return HOLD_SECOND_MS;
-    case Screen::HEALTH:  return HOLD_HEALTH_MS;
-    case Screen::WEATHER: return HOLD_WEATHER_MS;
-    default:              return HOLD_MAIN_MS;
+    case Screen::MAIN:     return HOLD_MAIN_MS;
+    case Screen::SECOND:   return HOLD_SECOND_MS;
+    case Screen::HEALTH:   return HOLD_HEALTH_MS;
+    case Screen::WEATHER:  return HOLD_WEATHER_MS;
+    case Screen::INSIGNIA: return HOLD_INSIGNIA_MS;
+    default:               return HOLD_MAIN_MS;
   }
 }
 
@@ -997,6 +1017,9 @@ void loop() {
 
   // Ingest any new UDP packets (drain ring buffer)
   if (TypeDUDP::available()) onPacket();
+
+  // Let Insignia advance timers regardless of current screen
+  Insignia::tick();
 
   // Compute inactivity from ANY port (use our timestamp, not an "age" misinterpreted as a time)
   const uint32_t now = millis();
@@ -1033,7 +1056,11 @@ void loop() {
     nextSwitchAt = now + holdFor(cur);
     if (cur == Screen::MAIN) pickRandomQuote();
     if (g_dbg) {
-      const char* nm = (cur==Screen::MAIN)?"MAIN":(cur==Screen::SECOND)?"SECOND":(cur==Screen::HEALTH)?"HEALTH":"WEATHER";
+      const char* nm =
+        (cur==Screen::MAIN)?"MAIN":
+        (cur==Screen::SECOND)?"SECOND":
+        (cur==Screen::HEALTH)?"HEALTH":
+        (cur==Screen::WEATHER)?"WEATHER":"INSIGNIA";
       Serial.printf("[DISPLAY] switch -> %s\n", nm);
     }
     doTransition(cur);
@@ -1044,10 +1071,11 @@ void loop() {
 
   if (now - lastDraw >= DRAW_INTERVAL_MS) {
     lastDraw = now;
-    if      (cur == Screen::MAIN)    drawMainScreen(0);
-    else if (cur == Screen::SECOND)  drawSecondScreen(0);
-    else if (cur == Screen::HEALTH)  drawHealthScreen(0);
-    else                             drawWeatherScreen(0);
+    if      (cur == Screen::MAIN)     drawMainScreen(0);
+    else if (cur == Screen::SECOND)   drawSecondScreen(0);
+    else if (cur == Screen::HEALTH)   drawHealthScreen(0);
+    else if (cur == Screen::WEATHER)  drawWeatherScreen(0);
+    else                              Insignia::draw(g);
   }
 }
 

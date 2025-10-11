@@ -16,9 +16,6 @@ void begin(U8G2* u8);
 // It pulls new UDP packets (via TypeDUDP), updates caches, and renders screens.
 void loop();
 
-// Optional serial noise from this module (independent of UDP debug)
-void setDebug(bool on);
-
 bool active();
 
 } // namespace TypeDDisplay

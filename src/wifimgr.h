@@ -1,9 +1,10 @@
 #pragma once
 #include <Arduino.h>
+#include <ESPAsyncWebServer.h>
 
 namespace WiFiMgr {
 
-    // AsyncWebServer& getServer(); // keep commented if you don't expose it
+    AsyncWebServer& getServer(); // keep commented if you don't expose it
 
     void begin();
     void loop();
