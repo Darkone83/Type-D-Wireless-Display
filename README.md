@@ -7,6 +7,8 @@
 </div>
 <p></p>
 
+<a href="https://discord.gg/k2BQhSJ"><img src="https://github.com/Darkone83/ModXo-Basic/blob/main/Images/discord.svg"></a>
+
 A tiny OLED “status screen” for original Xbox setups (and other sources), driven over Wi‑Fi/UDP.  
 Shows a main system summary, a dense second page, a health page, and an optional weather page, and insignia leaderboard page.
 Designed for the Waveshare 2.42″ SSD1309 I²C panel (128×64), with added experimental support for US2066 OLED displays.
