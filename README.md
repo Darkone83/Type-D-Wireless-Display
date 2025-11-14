@@ -119,6 +119,8 @@ Note: Images shown are from development builds
 
 ## Software prep:
 
+#### Web Flasher: [![Type%E2%80%93D%E2%80%93Wireless%E2%80%93Display Web Flasher](https://img.shields.io/badge/Web%20Flasher-Type%E2%80%93D%E2%80%93Wireless%E2%80%93Display-green?logo=esp32&logoColor=white)](https://darkone83.github.io/type-d-wireless-display.github.io/)
+
 ### Arduino IDE
 1. Install **ESP32** board support (ESP32‑S3 enabled).
 2. Libraries:
