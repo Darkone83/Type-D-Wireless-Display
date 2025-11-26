@@ -36,6 +36,14 @@ A Type D Expansion unit is required for these displays to properly work and disp
 
 ---
 
+## 📱 Get the App
+
+[![Download on the App Store](https://github.com/Darkone83/Type-D-Wireless-Display/blob/main/images/download.svg)](https://apps.apple.com/us/app/type-d-viewer/id6755620952)
+
+Download the **Type D Viewer** app for iOS to view live telemetry data from your XBOX.
+
+---
+
 ## 🧰 Required Hardware
 
 ### Desktop build
